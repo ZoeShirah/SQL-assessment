@@ -194,3 +194,127 @@ The result set should be:
 
 
 SELECT * FROM models ORDER BY name LIMIT 10 OFFSET 14;
+
+
+==========
+11
+
+-----
+
+Modify the query to add another field to the results that gives
+the number of years from the year of the model until the brand becomes
+discontinued.
+
+Display this new field with the name years_until_brand_discontinued. The correct
+result set is:
+
+    name    |       name       | year | discontinued | years_until_brand_discontinued 
+------------+------------------+------+--------------+--------------------------------
+ Austin     | Mini             | 1959 |         1987 |                             28
+ Austin     | Mini             | 1963 |         1987 |                             24
+ Austin     | Mini Cooper      | 1961 |         1987 |                             26
+ Austin     | Mini Cooper      | 1964 |         1987 |                             23
+ Austin     | Mini Cooper S    | 1963 |         1987 |                             24
+ Fairthorpe | Rockette         | 1960 |         1976 |                             16
+ Hillman    | Minx Magnificent | 1950 |         1981 |                             31
+ Plymouth   | Fury             | 1964 |         2001 |                             37
+ Pontiac    | Bonneville       | 1964 |         2010 |                             46
+ Pontiac    | Grand Prix       | 1962 |         2010 |                             48
+ Pontiac    | Grand Prix       | 1963 |         2010 |                             47
+ Pontiac    | Grand Prix       | 1964 |         2010 |                             46
+ Pontiac    | LeMans           | 1964 |         2010 |                             46
+ Pontiac    | Tempest          | 1961 |         2010 |                             49
+ Rambler    | Classic          | 1963 |         1969 |                              6
+ Studebaker | Avanti           | 1961 |         1967 |                              6
+ Studebaker | Avanti           | 1962 |         1967 |                              5
+ Studebaker | Avanti           | 1963 |         1967 |                              4
+ Studebaker | Avanti           | 1964 |         1967 |                              3
+(19 rows)
+
+-----
+
+
+SELECT b.name, m.name, m.year, b.discontinued
+,(b.discontinued - m.year) AS years_until_brand_discontinued
+FROM models AS m
+LEFT JOIN brands AS b
+ON m.brand_id = b.brand_id
+WHERE b.discontinued IS NOT NULL
+ORDER BY b.name, m.name, m.year;
+
+
+==========
+12
+
+-----
+
+Write a query that selects the name and year founded for brands that do NOT have any
+models in the models table.
+
+The correct result set is:
+
+ name  | founded
+-------+---------
+ Tesla |    2003
+(1 rows)
+
+-----
+
+
+SELECT b.name, b.founded
+FROM brands AS b LEFT JOIN models AS m
+ON b.brand_id = m.brand_id
+WHERE m.model_id IS NULL;
+
+
+==========
+13
+
+-----
+
+Select the brand id of any brand with more than 5 models in the
+database using a HAVING clause.
+
+The correct result set is:
+
+ brand_id 
+----------
+ che
+ pon
+ for
+(3 rows)
+
+
+-----
+
+
+SELECT brand_id
+FROM models
+GROUP BY brand_id
+HAVING COUNT(model_id) > 5;
+
+
+==========
+14
+
+-----
+
+Using a subquery, select the name and year of any model whose
+year is the same year that ANY brand was founded.
+
+The result set should be:
+
+   name    | year 
+-----------+------
+ Imperial  | 1926
+ Corvette  | 1953
+ Corvette  | 1954
+ Fleetwood | 1954
+(4 rows)
+
+-----
+
+
+SELECT name, year 
+FROM models
+WHERE year IN (SELECT founded FROM brands);
